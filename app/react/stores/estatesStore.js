@@ -13,49 +13,20 @@ function findEstate(estates, id){
     };
 };
 
-
-function replaceTitle(menus, menu){  // при смене меню - надо поменять название во вьюере
-  var res = findMenu(menus, menu.id);
-  if (res && res.menu) {
-    res.menu.content.title = menu.content.title;
-  }
-};
-
-
-//
-
 var viewerState  = new Rx.ReplaySubject(1);
 
 //массив обработчиков экшнов
 var handlers = [
-  actions.loadMenus.flatMap(function(rq_params) { //спрямляем вызов, чтобы получить доступ к результату, а не к потоку,
-                               return Rx.Observable.fromPromise(api.getMenus(rq_params)) //вызов апи
-                    }).map(function(data) {  // на входе результат вызова апи
-                          return function(state){  // текущий стейт
-                            var new_state = {menus: data, current: null} // меняем стейт по усмотрению
-                            return new_state;  // то, что будет новый состоянием
-                          }
-                     }),
+  actions.getEstates.flatMap(function(rq_params) {
+    return Rx.Observable.fromPromise(api.getEstates(rq_params)) //вызов апи
+  }).map(function(data) {  // на входе результат вызова апи
+    return function(state){  // текущий стейт
+      var new_state = {estates: data.estates} // меняем стейт по усмотрению
+      return new_state;  // то, что будет новый состоянием
+    }
+  }),
 
 
-  actions.createMenu.flatMap(function(rq_params) {
-                               return Rx.Observable.fromPromise(api.createMenu(rq_params))
-                            }).map(function(data) {
-                                      return function(state){
-                                         state.menus.push(data);
-                                         actions.showMenu.onNext({id : data.id});  // экшн может породить другой экшн
-                                         if (state.current) saveCurrent(state.menus, state.current, true); //создаем новое меню, переключаемся на него, но сохраняем текущие правки
-                                         return state;
-                                      }
-                                   }),
-  actions.saveMenus.map(function(rest_id) {
-                          return function(state){
-                            console.log('save')
-                            if (state.current)  saveCurrent(state.menus, state.current, false)
-                            api.saveMenus({rest_id: rest_id, menus: state.menus})
-                            return state;
-                          }
-                       }),
 
   actions.showMenu.map(function(data) {
                             return function(state){
