@@ -15,7 +15,10 @@ gem 'slim'
 gem 'grape'
 gem 'grape-entity'
 gem 'rack-cors', :require => 'rack/cors'
+gem 'grape-rails-routes'
 #gem 'hashie-forbidden_attributes'
+
+gem 'faker'
 
 gem 'omniauth'
 gem 'devise'

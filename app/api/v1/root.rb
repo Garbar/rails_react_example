@@ -5,12 +5,8 @@ class Root < Grape::API
       User.find_by(email: headers['Uid'])
     end
 
-    def authorize(current_user, policy, record)
-      if current_user.nil?
-        error! 'You are not authenticated', 401
-      else
-        error! 'Access Denied', 403 unless policy.constantize.new(current_user, record).index?
-      end
+    def authorize()
+      error!('401 Unauthorized', 401) unless current_user
     end
 
   end

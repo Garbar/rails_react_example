@@ -1,8 +1,46 @@
 'use strict';
-import {Link} from 'react-router';
+import {Link}     from 'react-router';
+import actions    from '../../../actions/estatesActions';
+import store      from '../../../stores/estatesStore';
 
 var ObjectsTable = React.createClass({
+  getInitialState: function() {
+    return {
+      estates: []
+    };
+  },
+
+  componentDidMount: function() {
+    actions.getEstates.onNext();
+    this.info_subscription = store.getViewerState.subscribe(function(data) {
+      this.setState({estates: data.estates});
+    }.bind(this));
+
+  },
+  componentWillUnmount: function() {
+    this.info_subscription.dispose();
+  },
+  deleteEstate: function(estate, e) {
+    e.preventDefault();
+    actions.deleteEstate.onNext({id: estate.id});
+  },
   render: function() {
+    var rows = [];
+    if(this.state.estates.length > 0) {
+      rows = this.state.estates.map(function(e, i) {
+        return(<tr key={i}>
+            <td>{e.title}</td>
+            <td>{[e.country, e.city, e.address].join(', ')}</td>
+            <td>{e.price}</td>
+            <td>
+              <div className="actions" >
+                <Link to={`\/admin\/estate_objects\/edit\/${e.id}`} className="glyphicon glyphicon-pencil" title="Edit"></Link>
+                <a href="#" onClick={this.deleteEstate.bind(null, e)} className="glyphicon glyphicon-remove" title="Delete"></a>
+              </div>
+            </td>
+        </tr>);
+      }.bind(this));
+    }
     return (<div className="row">
       <ol className="breadcrumb">
         <li><Link to="/">Home</Link></li>
@@ -27,39 +65,7 @@ var ObjectsTable = React.createClass({
             </tr>
           </thead>
           <tbody>
-            <tr>
-                <td>Title</td>
-                <td>John</td>
-                <td>Carter</td>
-                <td>
-                  <div className="actions" >
-                    <Link to="/admin/estate_objects/edit/1" className="glyphicon glyphicon-pencil" title="Edit"></Link>
-                    <a href="#" className="glyphicon glyphicon-remove" title="Delete"></a>
-                  </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Title</td>
-                <td>Peter</td>
-                <td>Parker</td>
-                <td>
-                  <div className="actions" >
-                    <a href="#" className="glyphicon glyphicon-pencil" title="Edit"></a>
-                    <a href="#" className="glyphicon glyphicon-remove" title="Delete"></a>
-                  </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Title</td>
-                <td>John</td>
-                <td>Rambo</td>
-                <td>
-                  <div className="actions" >
-                    <a href="#" className="glyphicon glyphicon-pencil" title="Edit"></a>
-                    <a href="#" className="glyphicon glyphicon-remove" title="Delete"></a>
-                  </div>
-                </td>
-            </tr>
+            {rows}
           </tbody>
         </table>
       </div>

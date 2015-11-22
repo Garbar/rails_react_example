@@ -1,12 +1,13 @@
 'use strict';
 import crud from './crud'
-const BASE_URL = API_URL + '/api/v1/estates/';
+const API_URL = `http:\/\/${location.host}`;
+const BASE_URL = API_URL + '/v1/estates/';
 
 var getEstates = function() {
   return crud.get(BASE_URL);
 };
 var getEstate = function(params) {
-  return crud.get(BASE_URL + params.estate.id);
+  return crud.get(BASE_URL + params.id);
 };
 
 var createEstate = function(params) {
@@ -18,7 +19,7 @@ var updateEstate = function(params) {
 };
 
 var deleteEstate = function(params) {
-  return crud.delete(BASE_URL + params.estate.id, params);
+  return crud.delete(BASE_URL + params);
 };
 
 var estatesApi =  {

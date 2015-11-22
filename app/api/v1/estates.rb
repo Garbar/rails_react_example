@@ -5,7 +5,8 @@ class Estates < Grape::API
     def estate_params
       ActionController::Parameters.new(params)
         .require(:estate).permit(
-          :title, :city, :country, :address, :price
+          :title, :city, :country, :address, :price,
+          :lng, :lat
         )
     end
   end
@@ -14,7 +15,6 @@ class Estates < Grape::API
 
     desc "Return list of estates"
     get '/' do
-      authorize
       present :estates, Estate.order(created_at: :desc)
     end
 
@@ -23,7 +23,8 @@ class Estates < Grape::API
       requires :estate, type: Hash
     end
     post do
-      estate = Estate.create(estate_data)
+      authorize
+      estate = Estate.create(estate_params)
       present :estate, estate
     end
 
@@ -33,7 +34,10 @@ class Estates < Grape::API
       requires :id, type: Integer
     end
     put ':id' do
-      Estate.find(params[:id]).update_attributes(estate_params)
+      authorize
+      estate = Estate.find(params[:id])
+      estate.update_attributes(estate_params)
+      present :estate, estate
     end
 
     desc "Return estate object"
@@ -50,6 +54,7 @@ class Estates < Grape::API
       requires :id, type: String
     end
     delete ':id' do
+      authorize
       Estate.find(params[:id]).destroy
     end
 
