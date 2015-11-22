@@ -1,2 +1,4 @@
 # rails_react_example
-example rails apllication with react.js 
+Example rails apllication with react.js.
+app/api - folder for grape api files.
+app/react - folder for react source files. 
